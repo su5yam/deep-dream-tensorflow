@@ -29,8 +29,10 @@ layers = [op.name for op in graph.get_operations() if op.type ==
 feature_nums = [int(graph.get_tensor_by_name(
     name+':0').get_shape()[-1]) for name in layers]
 
-print('Number of layers', len(layers))
-print('Total number of feature channels:', sum(feature_nums))
+print('*********************************************')
+print('➡️ Number of layers', len(layers))
+print('➡️ Total number of feature channels:', sum(feature_nums))
+print('*********************************************')
 
 layer = 'mixed4d_3x3_bottleneck_pre_relu'
 channel = 139  # picking some feature channel to visualize
@@ -254,7 +256,7 @@ def render_lapnorm(t_obj, img0=img_noise, visfunc=visstd,
 
 #render_lapnorm(T(layer)[:, :, :, channel])
 
-
+print('*********************************************')
 print('➡️ Deep Dream Start...')
 
 

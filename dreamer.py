@@ -8,8 +8,6 @@ from functools import partial
 import PIL.Image
 import argparse
 from IPython.display import clear_output, Image, display, HTML
-
-
 import tensorflow.compat.v1 as tf
 
 
@@ -59,6 +57,9 @@ def T(layer):
     return graph.get_tensor_by_name("import/%s:0" % layer)
 
 
+print('➡️ Naive Step Completed')
+
+
 def render_naive(t_obj, img0=img_noise, iter_n=20, step=1.0):
     # defining the optimization objective. This is mean of a given channel in a tensor layer defined by t_obj
     t_score = tf.reduce_mean(t_obj)
@@ -68,7 +69,7 @@ def render_naive(t_obj, img0=img_noise, iter_n=20, step=1.0):
     t_grad = tf.gradients(t_score, t_input)[0]
 
     img = img0.copy()
-    showarray(visstd(img), './results/result_0.jpg')
+    showarray(visstd(img), './results/naive/result_0.jpg')
 
     act_obj = sess.run(t_obj, {t_input: img_noise})
     print('objective tensor size', act_obj.shape)
@@ -80,16 +81,16 @@ def render_naive(t_obj, img0=img_noise, iter_n=20, step=1.0):
         img += g * step
         print(i, ' ', score)
 
-        fname = './results/result_'+str(i) + '.jpg'
+        fname = './results/naive/naive_'+str(i) + '.jpg'
         showarray(visstd(img), fname)
-        clear_output()
-    showarray(visstd(img), './results/result_final.jpg')
+        # clear_output()
+    showarray(visstd(img), './results/naive/naive_final.jpg')
 
 
 #render_naive(T(layer)[:, :, :, channel])
 
 
-print('🔥🔥🔥 Multiscale 🔥🔥🔥')
+print('➡️ Multiscale Step Completed')
 
 
 def tffunc(*argtypes):
@@ -122,7 +123,7 @@ def calc_grad_tiled(img, t_grad, t_score, t_obj, tile_size=512):
     Random shifts are applied to the image to blur tile boundaries over
     multiple iterations.'''
     sz = tile_size
-    print('tile size', tile_size)
+    print('tile size:', tile_size)
 
     h, w = img.shape[:2]
     sx, sy = np.random.randint(sz, size=2)
@@ -166,7 +167,7 @@ def render_multiscale(t_obj, img0=img_noise, iter_n=10, step=1.0, octave_n=3, oc
             print('o: ', octave, 'i: ', i, 'size:', g.shape, end=' ')
             # clear_output()
 
-            fname = './results/multi_scale_result_' + \
+            fname = './results/multiscale/multiscale_' + \
                 str(i) + '_'+str(octave) + '.jpg'
             showarray(visstd(img), fname)
 
@@ -174,7 +175,7 @@ def render_multiscale(t_obj, img0=img_noise, iter_n=10, step=1.0, octave_n=3, oc
 #render_multiscale(T(layer)[:, :, :, channel])
 
 
-print('🔥🔥🔥 Laplace 🔥🔥🔥')
+print('➡️ Laplace Step Completed')
 
 k = np.float32([1, 4, 6, 4, 1])
 k = np.outer(k, k)
@@ -243,10 +244,10 @@ def render_lapnorm(t_obj, img0=img_noise, visfunc=visstd,
             g = calc_grad_tiled(img, t_grad, t_score, t_obj)
             g = lap_norm_func(g)
             img += g*step
-            #print('.', end = ' ')
+            print('.', end=' ')
             print('o: ', octave, 'i: ', i, 'size:', g.shape, end=' ')
 
-            fname = './results/laplace_result_' + \
+            fname = './results/laplace/laplace_' + \
                 str(i) + '_' + str(octave) + '.jpg'
             showarray(visstd(img), fname)
 
@@ -254,7 +255,14 @@ def render_lapnorm(t_obj, img0=img_noise, visfunc=visstd,
 #render_lapnorm(T(layer)[:, :, :, channel])
 
 
-print('🔥🔥🔥 deep dream 🔥🔥🔥')
+print('➡️ Deep Dream Start...')
+
+
+def all_layers():
+    for l, layer in enumerate(layers):
+        layer = layer.split("/")[1]
+        num_channels = T(layer).shape[3]
+        print(layer, num_channels)
 
 
 def render_deepdream(t_obj, img0=img_noise,
@@ -284,7 +292,7 @@ def render_deepdream(t_obj, img0=img_noise,
             print('.', end=' ')
             # clear_output()
 
-            fname = './results/deep_dream_result_' + \
+            fname = './results/deepdream/deepdream_' + \
                 str(i) + '_' + str(octave) + '.jpg'
             showarray(img / 255.0, fname)
 
@@ -297,7 +305,7 @@ img0 = np.float32(img0)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Deep-Dream-Tensorflow')
-    parser.add_argument('-i', '--input', help='Input Image',
+    parser.add_argument('-i', '--input', help='Input Image', type=str,
                         required=False, default=img0)
     parser.add_argument('-oct', '--octaves',
                         help='Octaves. Default: 4', type=int, required=False, default=4)
@@ -308,10 +316,15 @@ if __name__ == "__main__":
     parser.add_argument(
         '-s', '--step', help='Step Size. Default: 1.5', type=float, required=False, default=1.5)
     parser.add_argument('-ch', '--channel',
-                        help='Channel To Be Used', type=int, required=False, default=139)
+                        help='Channel To Be Used', type=int, required=False, default=445)
     parser.add_argument(
         '-l', '--layer', help='Layer To Be Used', type=str, required=False, default='mixed4a')
+    parser.add_argument(
+        '-p', '--printlayers', help='Print All Layers', type=int, required=False, default=0)
     args = parser.parse_args()
 
-render_deepdream(T(args.layer)[:, :, :, args.channel], args.input,
-                 args.iterations, args.step, args.octaves, args.octavescale)
+if args.printlayers is 1:
+    all_layers()
+else:
+    render_deepdream(T(args.layer)[:, :, :, args.channel], args.input,
+                     args.iterations, args.step, args.octaves, args.octavescale)

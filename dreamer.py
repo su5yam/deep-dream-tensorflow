@@ -166,8 +166,8 @@ def render_multiscale(t_obj, img0=img_noise, iter_n=10, step=1.0, octave_n=3, oc
             # normalizing the gradient, so the same step size should work
             g /= g.std() + 1e-8  # for different layers and networks
             img += g * step
-            print('➡️ octave: ', octave, 'itr: ',
-                  i, 'size:', g.shape)
+            print('➡️ itr: ', i, 'octave: ',
+                  octave, 'size:', g.shape)
             clear_output()
 
             fname = './results/multiscale/multiscale_' + \
@@ -247,8 +247,8 @@ def render_lapnorm(t_obj, img0=img_noise, visfunc=visstd,
             g = calc_grad_tiled(img, t_grad, t_score, t_obj)
             g = lap_norm_func(g)
             img += g*step
-            print('➡️ octave: ', octave, 'itr: ',
-                  i, 'size:', g.shape)
+            print('➡️ itr: ', i, 'octave: ',
+                  octave, 'size:', g.shape)
 
             fname = './results/laplace/laplace_' + \
                 str(i) + '_' + str(octave) + '.jpg'
@@ -298,8 +298,8 @@ def render_deepdream(t_obj, img0=img_noise, visfunc=visstd,
         for i in range(iter_n):
             g = calc_grad_tiled(img, t_grad, t_score, t_obj)
             img += g * (step / (np.abs(g).mean() + 1e-7))
-            print('➡️ octave: ', octave, 'itr: ',
-                  i, 'size:', g.shape)
+            print('➡️ itr: ', i, 'octave: ',
+                  octave, 'size:', g.shape)
             clear_output()
 
             fname = './results/deepdream/deepdream_' + \

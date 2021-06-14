@@ -34,8 +34,8 @@ print('➡️ Number of layers', len(layers))
 print('➡️ Total number of feature channels:', sum(feature_nums))
 print('*********************************************')
 
-layer = 'mixed4d_3x3_bottleneck_pre_relu'
-channel = 139  # picking some feature channel to visualize
+#layer = 'mixed4d_3x3_bottleneck_pre_relu'
+# channel = 139  # picking some feature channel to visualize
 
 # start with a gray image with a little noise
 img_noise = np.random.uniform(size=(224, 224, 3)) + 100.0
@@ -85,7 +85,7 @@ def render_naive(t_obj, img0=img_noise, iter_n=20, step=1.0):
 
         fname = './results/naive/naive_'+str(i) + '.jpg'
         showarray(visstd(img), fname)
-        # clear_output()
+        clear_output()
     showarray(visstd(img), './results/naive/naive_final.jpg')
 
 
@@ -125,7 +125,7 @@ def calc_grad_tiled(img, t_grad, t_score, t_obj, tile_size=512):
     Random shifts are applied to the image to blur tile boundaries over
     multiple iterations.'''
     sz = tile_size
-    print('➡️ tile size:', tile_size)
+    print('tile size:', tile_size)
 
     h, w = img.shape[:2]
     sx, sy = np.random.randint(sz, size=2)
@@ -136,7 +136,7 @@ def calc_grad_tiled(img, t_grad, t_score, t_obj, tile_size=512):
     x = 0
     sub = img_shift[y:y + sz, x:x + sz]
     act_obj = sess.run(t_obj, {t_input: sub})
-    print('objective tensor size', act_obj.shape)
+    #print('objective tensor size', act_obj.shape)
 
     for y in range(0, max(h-sz//2, sz), sz):
         for x in range(0, max(w-sz//2, sz), sz):
@@ -144,9 +144,9 @@ def calc_grad_tiled(img, t_grad, t_score, t_obj, tile_size=512):
             g, score = sess.run([t_grad, t_score], {t_input: sub})
             #score = sess.run(t_score, {input: sub})
             grad[y:y+sz, x:x+sz] = g
-            print('x:', x, 'y:', y)
+            #print('x:', x, 'y:', y)
 
-            print('score: ', score)
+            #print('score: ', score)
 
     return np.roll(np.roll(grad, -sx, 1), -sy, 0)
 
@@ -166,8 +166,9 @@ def render_multiscale(t_obj, img0=img_noise, iter_n=10, step=1.0, octave_n=3, oc
             # normalizing the gradient, so the same step size should work
             g /= g.std() + 1e-8  # for different layers and networks
             img += g * step
-            print('o: ', octave, 'i: ', i, 'size:', g.shape, end=' ')
-            # clear_output()
+            print('➡️ octave: ', octave, 'itr: ',
+                  i, 'size:', g.shape)
+            clear_output()
 
             fname = './results/multiscale/multiscale_' + \
                 str(i) + '_'+str(octave) + '.jpg'
@@ -246,8 +247,8 @@ def render_lapnorm(t_obj, img0=img_noise, visfunc=visstd,
             g = calc_grad_tiled(img, t_grad, t_score, t_obj)
             g = lap_norm_func(g)
             img += g*step
-            print('.', end=' ')
-            print('o: ', octave, 'i: ', i, 'size:', g.shape, end=' ')
+            print('➡️ octave: ', octave, 'itr: ',
+                  i, 'size:', g.shape)
 
             fname = './results/laplace/laplace_' + \
                 str(i) + '_' + str(octave) + '.jpg'
@@ -272,7 +273,7 @@ def all_layers():
 # main deepdream function
 
 
-def render_deepdream(t_obj, img0=img_noise,
+def render_deepdream(t_obj, img0=img_noise, visfunc=visstd,
                      iter_n=10, step=1.5, octave_n=4, octave_scale=1.4):
     t_score = tf.reduce_mean(t_obj)  # defining the optimization objective
 
@@ -297,8 +298,9 @@ def render_deepdream(t_obj, img0=img_noise,
         for i in range(iter_n):
             g = calc_grad_tiled(img, t_grad, t_score, t_obj)
             img += g * (step / (np.abs(g).mean() + 1e-7))
-            print('.', end=' ')
-            # clear_output()
+            print('➡️ octave: ', octave, 'itr: ',
+                  i, 'size:', g.shape)
+            clear_output()
 
             fname = './results/deepdream/deepdream_' + \
                 str(i) + '_' + str(octave) + '.jpg'
@@ -330,16 +332,16 @@ if __name__ == "__main__":
     parser.add_argument(
         '-p', '--printlayers', help='Print All Layers', type=int, required=False, default=0)
     parser.add_argument('-lap', '--lapnorm', help='Apply lapacian smoothening',
-                        type=int, required=False, default=1)
+                        type=int, required=False, default=0)
     parser.add_argument('-ls', '--lapscale', help='Amount of laplacian smoothening',
                         type=int, required=False, default=4)
     parser.add_argument('-vf', '--visfunc', help='Function',
                         type=str, required=False, default=visstd)
     args = parser.parse_args()
 
-if args.printlayers is 1:
+if args.printlayers == 1:
     all_layers()
-elif args.lapnorm is 1:
+elif args.lapnorm == 1:
     render_lapnorm(T(args.layer)[:, :, :, args.channel], args.input, args.visfunc,
                    args.iterations, args.step, args.octaves, args.octavescale, args.lapscale)
 else:

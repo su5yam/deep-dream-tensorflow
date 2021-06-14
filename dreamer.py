@@ -329,10 +329,17 @@ if __name__ == "__main__":
         '-l', '--layer', help='Layer To Be Used', type=str, required=False, default='mixed4a')
     parser.add_argument(
         '-p', '--printlayers', help='Print All Layers', type=int, required=False, default=0)
+    parser.add_argument('-lap', '--lapnorm', help='Apply lapacian smoothening',
+                        type=int, required=False, default=True)
+    parser.add_argument('-ls', '--lapscale', help='Amount of laplacian smoothening',
+                        type=int, required=False, default=4)
     args = parser.parse_args()
 
 if args.printlayers is 1:
     all_layers()
+elif args.lapnorm is 1:
+    render_lapnorm(T(args.layer)[:, :, :, args.channel], args.input,
+                   args.iterations, args.step, args.octaves, args.octavescale, args.lapscale)
 else:
     render_deepdream(T(args.layer)[:, :, :, args.channel], args.input,
                      args.iterations, args.step, args.octaves, args.octavescale)

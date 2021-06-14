@@ -345,5 +345,5 @@ elif args.lapnorm == 1:
     render_lapnorm(T(args.layer)[:, :, :, args.channel], args.input, args.visfunc,
                    args.iterations, args.step, args.octaves, args.octavescale, args.lapscale)
 else:
-    render_deepdream(T(args.layer)[:, :, :, args.channel], args.input,
+    render_deepdream(T(args.layer)[:, :, :, args.channel], args.input, args.visfunc,
                      args.iterations, args.step, args.octaves, args.octavescale)

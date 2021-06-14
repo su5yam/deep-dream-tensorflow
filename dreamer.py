@@ -333,12 +333,14 @@ if __name__ == "__main__":
                         type=int, required=False, default=1)
     parser.add_argument('-ls', '--lapscale', help='Amount of laplacian smoothening',
                         type=int, required=False, default=4)
+    parser.add_argument('-vf', '--visfunc', help='Function',
+                        type=str, required=False, default=visstd)
     args = parser.parse_args()
 
 if args.printlayers is 1:
     all_layers()
 elif args.lapnorm is 1:
-    render_lapnorm(T(args.layer)[:, :, :, args.channel], args.input,
+    render_lapnorm(T(args.layer)[:, :, :, args.channel], args.input, args.visfunc,
                    args.iterations, args.step, args.octaves, args.octavescale, args.lapscale)
 else:
     render_deepdream(T(args.layer)[:, :, :, args.channel], args.input,

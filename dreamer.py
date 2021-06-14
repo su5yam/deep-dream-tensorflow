@@ -328,11 +328,7 @@ if __name__ == "__main__":
     parser.add_argument('-ch', '--channel',
                         help='Channel To Be Used', type=int, required=False, default=445)
     parser.add_argument(
-        '-l1', '--layer1', help='Layer To Be Used', type=str, required=False, default='mixed4a')
-    parser.add_argument(
-        '-l2', '--layer2', help='Layer To Be Used', type=str, required=False, default='mixed4a')
-    parser.add_argument(
-        '-l3', '--layer3', help='Layer To Be Used', type=str, required=False, default='mixed4a')
+        '-l', '--layer', help='Layer To Be Used', type=str, required=False, default='mixed4a')
     parser.add_argument(
         '-p', '--printlayers', help='Print All Layers', type=int, required=False, default=0)
     parser.add_argument('-lap', '--lapnorm', help='Apply lapacian smoothening',
@@ -346,8 +342,8 @@ if __name__ == "__main__":
 if args.printlayers == 1:
     all_layers()
 elif args.lapnorm == 1:
-    render_lapnorm(T(args.layer1)[:, :, :, args.channel]+T(args.layer2)[:, :, :, args.channel]+T(args.layer3)[:, :, :, args.channel], args.input, args.visfunc,
+    render_lapnorm(T(args.layer)[:, :, :, args.channel], args.input, args.visfunc,
                    args.iterations, args.step, args.octaves, args.octavescale, args.lapscale)
 else:
-    render_deepdream(T(args.layer1)[:, :, :, args.channel]+T(args.layer2)[:, :, :, args.channel]+T(args.layer3)[:, :, :, args.channel], args.input, args.visfunc,
+    render_deepdream(T(args.layer)[:, :, :, args.channel], args.input, args.visfunc,
                      args.iterations, args.step, args.octaves, args.octavescale)

@@ -309,7 +309,6 @@ def render_deepdream(t_obj, img0=img_noise, visfunc=visstd,
 
 img0 = PIL.Image.open('jungle.jpg')
 img0 = np.float32(img0)
-
 #render_deepdream(tf.square(T('mixed4d')), img0)
 #render_deepdream(T(layer)[:, :, :, 55], img0, iter_n=10, step=5, octave_n=4)
 

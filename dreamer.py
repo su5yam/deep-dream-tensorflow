@@ -125,7 +125,7 @@ def calc_grad_tiled(img, t_grad, t_score, t_obj, tile_size=512):
     Random shifts are applied to the image to blur tile boundaries over
     multiple iterations.'''
     sz = tile_size
-    print('tile size:', tile_size)
+    print('➡️ tile size:', tile_size)
 
     h, w = img.shape[:2]
     sx, sy = np.random.randint(sz, size=2)
@@ -257,19 +257,25 @@ def render_lapnorm(t_obj, img0=img_noise, visfunc=visstd,
 #render_lapnorm(T(layer)[:, :, :, channel])
 
 print('*********************************************')
-print('➡️ Deep Dream Start...')
+print('➡️ Deep Dream Starting...')
+
+# function to print all layers
 
 
 def all_layers():
+    print('⬇️ All the available layers:')
     for l, layer in enumerate(layers):
         layer = layer.split("/")[1]
         num_channels = T(layer).shape[3]
         print(layer, num_channels)
 
+# main deepdream function
+
 
 def render_deepdream(t_obj, img0=img_noise,
                      iter_n=10, step=1.5, octave_n=4, octave_scale=1.4):
     t_score = tf.reduce_mean(t_obj)  # defining the optimization objective
+
     # behold the power of automatic differentiation!
     t_grad = tf.gradients(t_score, t_input)[0]
 

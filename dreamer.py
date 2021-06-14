@@ -330,7 +330,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '-p', '--printlayers', help='Print All Layers', type=int, required=False, default=0)
     parser.add_argument('-lap', '--lapnorm', help='Apply lapacian smoothening',
-                        type=int, required=False, default=True)
+                        type=int, required=False, default=1)
     parser.add_argument('-ls', '--lapscale', help='Amount of laplacian smoothening',
                         type=int, required=False, default=4)
     args = parser.parse_args()
